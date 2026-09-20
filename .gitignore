@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.py[cod]
+host-settings.json
+wifi-gamepad-*.png
+.DS_Store
+Thumbs.db

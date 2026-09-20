@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru" data-theme="terminal">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090a0c">
+  <title>Wi‑Fi Gamepad</title>
+  <link rel="stylesheet" href="/assets/style.css?v=32">
+</head>
+<body>
+  <main id="app">
+    <header class="toolbar">
+      <div class="brand">
+        <span class="brand-mark">WG</span>
+        <span class="brand-copy"><b>WI-FI GAMEPAD</b><small><i id="statusDot"></i><span id="statusText">ПОДКЛЮЧЕНИЕ</span></small></span>
+      </div>
+      <div class="toolbar-actions">
+        <span class="player-badge">P<span id="playerSlot">—</span></span>
+        <span id="inputBadge" class="input-badge">TOUCH</span>
+        <button id="settingsButton" class="icon-button" aria-label="Настройки">⚙</button>
+        <button id="infoButton" class="icon-button info-button" aria-label="Инструкция">i</button>
+        <button id="addButton" class="editor-only">+ ЭЛЕМЕНТ</button>
+        <button id="resetButton" class="editor-only danger">СБРОС</button>
+        <button id="editButton" class="editor-only">ГОТОВО</button>
+        <button id="fullscreenButton" aria-label="Полный экран">⛶</button>
+      </div>
+    </header>
+
+    <div id="stageViewport">
+      <section id="arena" aria-label="Сенсорный геймпад"></section>
+      <div id="desktopOverlay" class="desktop-overlay hidden">
+        <div class="desktop-panel"><span class="desktop-icon">⌁</span><b>КЛАВИАТУРА + МЫШЬ</b><small>Преврати этот компьютер в отдельный контроллер</small><button id="captureMouseButton">ЗАХВАТИТЬ МЫШЬ</button><em>ESC — освободить курсор</em></div>
+      </div>
+    </div>
+
+    <aside id="inspector" class="inspector" aria-label="Параметры элемента">
+      <span id="selectedName">ЭЛЕМЕНТ</span>
+      <label>ДЕЙСТВИЕ <select id="actionSelect"></select></label>
+      <label>ПОДПИСЬ <input id="labelInput" maxlength="8" autocomplete="off"></label>
+      <button id="deleteButton" class="danger">УДАЛИТЬ</button>
+    </aside>
+
+    <div id="addMenu" class="modal hidden">
+      <div class="modal-card">
+        <h2>НОВЫЙ ЭЛЕМЕНТ</h2>
+        <button data-add="button">КНОПКА</button>
+        <button data-add="stick">СТИК</button>
+        <button data-add="dpad">D-PAD</button>
+        <button data-close>ОТМЕНА</button>
+      </div>
+    </div>
+
+    <div id="settingsMenu" class="modal hidden">
+      <div class="modal-card settings-shell">
+        <div class="modal-heading"><span>НАСТРОЙКИ</span><button data-settings-close aria-label="Закрыть">×</button></div>
+        <nav class="settings-tabs">
+          <button class="active" data-settings-tab="device">УСТРОЙСТВО</button>
+          <button data-settings-tab="input">ВВОД</button>
+          <button data-settings-tab="screen">ЭКРАН</button>
+          <button data-settings-tab="style">СТИЛЬ</button>
+        </nav>
+
+        <section class="settings-panel active" data-settings-panel="device">
+          <label class="setting-row"><span>ИМЯ</span><input id="deviceName" maxlength="24" autocomplete="off"></label>
+          <label class="setting-row"><span>ИГРОВОЙ СЛОТ</span><select id="slotSelect"><option value="1">P1</option><option value="2">P2</option><option value="3">P3</option><option value="4">P4</option></select></label>
+          <p class="settings-hint">Если клавиатура управляет первым персонажем, назначь этому устройству P2 до запуска игры.</p>
+          <p class="section-label">ПОДКЛЮЧЕНО: <span id="deviceCount">0</span></p>
+          <div id="deviceList" class="device-list"></div>
+        </section>
+
+        <section class="settings-panel" data-settings-panel="input">
+          <label class="setting-row"><span>РЕЖИМ</span><select id="inputModeSelect"><option value="auto">АВТО</option><option value="touch">СЕНСОРНЫЙ</option><option value="desktop">КЛАВИАТУРА + МЫШЬ</option></select></label>
+          <label class="range-row"><span>ЧУВСТВИТЕЛЬНОСТЬ МЫШИ <output id="mouseSensitivityOutput">100%</output></span><input id="mouseSensitivity" type="range" min="25" max="200" value="100"></label>
+          <div class="key-map">
+            <span><kbd>WASD</kbd> левый стик</span><span><kbd>МЫШЬ</kbd> правый стик</span>
+            <span><kbd>SPACE</kbd> A</span><span><kbd>E / Q / R</kbd> B / X / Y</span>
+            <span><kbd>LMB / RMB</kbd> RT / LT</span><span><kbd>ENTER</kbd> START</span>
+            <span><kbd>ARROWS</kbd> D-PAD</span><span><kbd>ESC</kbd> освободить мышь</span>
+          </div>
+        </section>
+
+        <section class="settings-panel" data-settings-panel="screen">
+          <label class="setting-row"><span>ФОРМАТ</span><select id="aspectSelect"><option value="auto">АВТО</option><option value="16:9">16:9</option><option value="16:10">16:10</option><option value="4:3">4:3</option></select></label>
+          <label class="range-row"><span>ЗАПОЛНЕНИЕ <output id="fillOutput">100%</output></span><input id="fillRange" type="range" min="70" max="100" value="100"></label>
+          <label class="range-row"><span>БЕЗОПАСНЫЕ ПОЛЯ <output id="marginOutput">0%</output></span><input id="marginRange" type="range" min="0" max="8" value="0"></label>
+          <button id="resetScreenButton">СБРОСИТЬ ЭКРАН</button>
+        </section>
+
+        <section class="settings-panel style-panel" data-settings-panel="style">
+          <p class="section-label">ЦВЕТОВАЯ ТЕМА</p>
+          <div class="choice-grid">
+            <button class="theme-choice" data-theme-choice="terminal"><i class="theme-preview terminal-preview"></i><b>TERMINAL</b></button>
+            <button class="theme-choice" data-theme-choice="ice"><i class="theme-preview ice-preview"></i><b>ICE</b></button>
+            <button class="theme-choice" data-theme-choice="amber"><i class="theme-preview amber-preview"></i><b>AMBER</b></button>
+            <button class="theme-choice" data-theme-choice="violet"><i class="theme-preview violet-preview"></i><b>VIOLET</b></button>
+          </div>
+          <p class="section-label">СТИЛЬ ЭЛЕМЕНТОВ</p>
+          <div class="choice-grid three">
+            <button class="style-choice" data-style-choice="soft"><b>SOFT</b></button>
+            <button class="style-choice" data-style-choice="pixel"><b>PIXEL</b></button>
+            <button class="style-choice" data-style-choice="glass"><b>GLASS</b></button>
+          </div>
+          <p class="section-label">РАСКЛАДКА</p>
+          <button id="openEditorButton">ОТКРЫТЬ РЕДАКТОР</button>
+        </section>
+      </div>
+    </div>
+
+    <div id="infoMenu" class="modal hidden">
+      <div class="modal-card tutorial-card">
+        <div class="modal-heading"><span>КАК ПОЛЬЗОВАТЬСЯ</span><button data-info-close aria-label="Закрыть">×</button></div>
+        <ol class="tutorial-list">
+          <li><b>Сначала подключи устройства.</b><span>Открой адрес из окна сервера на планшетах и компьютерах.</span></li>
+          <li><b>Назначь игроков.</b><span>В шестерёнке выбери разные слоты P1–P4. Для клавиатуры первого игрока планшету обычно нужен P2.</span></li>
+          <li><b>Главный компьютер.</b><span>В WG HOST CONTROL нажми «Свернуть панель и запустить». Панель вернёт фокус игре сама. F10 освобождает ввод.</span></li>
+          <li><b>Другой компьютер.</b><span>В браузере нажми «Захватить мышь». WASD станет левым стиком, мышь — правым. Esc освобождает курсор.</span></li>
+          <li><b>Запусти игру последней.</b><span>Некоторые игры находят контроллеры только во время запуска.</span></li>
+          <li><b>Настрой вид.</b><span>Темы, стили, формат экрана и редактор раскладки находятся в шестерёнке.</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="portrait-warning">ПОВЕРНИТЕ ПЛАНШЕТ ГОРИЗОНТАЛЬНО</div>
+  </main>
+  <script src="/assets/app.js?v=32" defer></script>
+</body>
+</html>
